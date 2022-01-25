@@ -5,29 +5,51 @@ import sys
 import argparse
 import logging
 
-
-parser = argparse.ArgumentParser(description='Hardlink tweaks of file/folder to get more crossed.')
-parser.add_argument('-s', '--host', type=str, required=True, help='host of transmission')
-parser.add_argument('-p', '--port', type=str, required=True, help='port of transmission')
-parser.add_argument('-u', '--username', type=str, required=True, help='username of transmission')
-parser.add_argument('-w', '--password', type=str, required=True, help='password of transmission')
-parser.add_argument('-d', '--docker_dir', type=str, required=True, help='root dir in docker')
-parser.add_argument('-r', '--real_dir', type=str, required=True, help='real dir path')
+parser = argparse.ArgumentParser(
+    description='Hardlink tweaks of file/folder to get more crossed.')
+parser.add_argument('-s',
+                    '--host',
+                    type=str,
+                    required=True,
+                    help='host of transmission')
+parser.add_argument('-p',
+                    '--port',
+                    type=str,
+                    required=True,
+                    help='port of transmission')
+parser.add_argument('-u',
+                    '--username',
+                    type=str,
+                    required=True,
+                    help='username of transmission')
+parser.add_argument('-w',
+                    '--password',
+                    type=str,
+                    required=True,
+                    help='password of transmission')
+parser.add_argument('-d',
+                    '--docker_dir',
+                    type=str,
+                    required=True,
+                    help='root dir in docker')
+parser.add_argument('-r',
+                    '--real_dir',
+                    type=str,
+                    required=True,
+                    help='real dir path')
 ARGS = parser.parse_args()
 
-# ARGS.input_path = os.path.expanduser(ARGS.input_path)
+# ARGS.real_dir = os.path.expanduser(ARGS.input_path)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-# logger.setLevel(logging.DEBUG)
 # formatter = logging.Formatter(
 #     '\n%(asctime)s - Module: %(module)s - Line: %(lineno)d - Message: %(message)s'
 # )
 
 # file_handler = logging.FileHandler('file_dup.log', encoding='utf8')
 # file_handler.setFormatter(formatter)
-
 # logger.addHandler(file_handler)
 
 
@@ -56,11 +78,14 @@ def hdlinkCopy(fromLoc, toDir):
         else:
             print('\033[36mExisted: %s =>  %s \033[0m' % (fromLoc, destDir))
 
+
 def dockerDirToReal(dlclient, path):
     if path.startswith(dlclient.scsetting.map_docker_dir):
-        return path.replace(dlclient.scsetting.map_docker_dir, dlclient.scsetting.map_real_dir, 1)
+        return path.replace(dlclient.scsetting.map_docker_dir,
+                            dlclient.scsetting.map_real_dir, 1)
     else:
         return path
+
 
 def tweakTask(dlclient):
     torList = dlclient.loadTorrents()
@@ -68,39 +93,50 @@ def tweakTask(dlclient):
         if tor.status not in ['stopped']:
             continue
 
-        breakpoint()
-
         filename, fileext = os.path.splitext(tor.name)
-        logger.info('Paused torrent: '+tor.name)
-        origin_path = os.path.join(dockerDirToReal(dlclient, tor.save_path), tor.name)
+        logger.info('Torrent: ' + tor.name)
+        origin_path = os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                   tor.name)
         if os.path.exists(origin_path):
-            logger.info('Savepath exists: ' + origin_path)
+            logger.info('Exists: ' + origin_path)
             continue
 
         # CultFilms™
         if tor.name.find('™') > 0:
-            if os.path.exists(os.path.join(dockerDirToReal(dlclient, tor.save_path), tor.name.replace('™', ''))):
-                hdlinkCopy(os.path.join(dockerDirToReal(dlclient, tor.save_path), tor.name.replace('™', '')), origin_path)
+            if os.path.exists(
+                    os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                 tor.name.replace('™', ''))):
+                hdlinkCopy(
+                    os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                 tor.name.replace('™', '')), origin_path)
                 logger.info('Hardlink to : ' + origin_path)
                 continue
 
-        # `FraMeSToR.mkv` 和 `FraMeSToR/` 
+        # `FraMeSToR.mkv` 和 `FraMeSToR/`
         if (fileext == '.mkv'):
-            indir_path = os.path.join(dockerDirToReal(dlclient, tor.save_path), filename)
-            if os.path.exists(indir_path) and os.path.exists(os.path.join(indir_path, tor.name)):
-                logger.info('Re-location to: ' + os.path.join(tor.save_path, filename ))
-                dlclient.setLocation(tor.torrent_hash, os.path.join(tor.save_path, filename))
+            indir_path = os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                      filename)
+            if os.path.exists(indir_path) and os.path.exists(
+                    os.path.join(indir_path, tor.name)):
+                logger.info('Re-location to: ' +
+                            os.path.join(tor.save_path, filename))
+                dlclient.setLocation(tor.torrent_hash,
+                                     os.path.join(tor.save_path, filename))
                 continue
         # `FraMeSToR/`  and `FraMeSToR.mkv`
-        if os.path.exists(os.path.join(dockerDirToReal(dlclient, tor.save_path), tor.name+'.mkv')):
-            hdlinkCopy(os.path.join(dockerDirToReal(dlclient, tor.save_path), tor.name+'.mkv'), origin_path)
+        if os.path.exists(
+                os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                             tor.name + '.mkv')):
+            hdlinkCopy(
+                os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                             tor.name + '.mkv'), origin_path)
             logger.info('Hardlink to : ' + origin_path)
             continue
-        
 
 
 class ClientSetting:
-    def __init__(self, clienttype, host, port, username, password, map_docker_dir, map_real_dir):
+    def __init__(self, clienttype, host, port, username, password,
+                 map_docker_dir, map_real_dir):
         self.clienttype = clienttype
         self.host = host
         self.port = port
@@ -111,8 +147,8 @@ class ClientSetting:
 
 
 def main():
-    client =ClientSetting('tr', ARGS.host, ARGS.port, ARGS.username, ARGS.password, ARGS.docker_dir, ARGS.real_dir)
-    breakpoint()
+    client = ClientSetting('tr', ARGS.host, ARGS.port, ARGS.username,
+                           ARGS.password, ARGS.docker_dir, ARGS.real_dir)
     dlclient = torclient.getDownloadClient(client)
     if dlclient:
         logger.info('Connecting: ' + dlclient.scsetting.host)
@@ -125,7 +161,5 @@ def main():
         logger.info('Connect failed: ' + dlclient.scsetting.host)
 
 
-
 if __name__ == '__main__':
     main()
-
