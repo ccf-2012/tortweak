@@ -9,7 +9,7 @@ Hardlink tweaks of file/folder to get more crossed.
 
 ## Install dependencies
 ```sh
-pip3 install < requirements.txt
+pip3 install -r requirements.txt
 ```
 or:
 ```sh
@@ -20,13 +20,13 @@ pip install deluge_client
 pip install pytz
 ```
 
-* install pip3 in Synology
+* Tip: install pip3 in Synology
 ```sh
 # install python in DSM
 sudo python3 -m ensurepip
 ```
 
-* install python3 / pip3 in QNAP
+* Tip: install python3 / pip3 in QNAP
 ```sh
 opkg install python3-pip
 ```
