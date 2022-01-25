@@ -1,0 +1,4 @@
+pytz
+qbittorrent-api
+transmission-rpc
+deluge_client
