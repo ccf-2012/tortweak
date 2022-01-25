@@ -4,12 +4,12 @@ Hardlink tweaks of file/folder to get more crossed.
 
 ## Require
 * transmission
-* python3 and pip3
+* python (>3.6) and pip
 
 
 ## Install dependencies
 ```sh
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 or:
 ```sh
