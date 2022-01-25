@@ -112,6 +112,17 @@ def tweakTask(dlclient):
                 logger.info('Hardlink to : ' + origin_path)
                 continue
 
+        if tor.name.endswith('CultFilms'):
+            if os.path.exists(
+                    os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                 tor.name.replace('CultFilms', 'CultFilms™'))):
+                hdlinkCopy(
+                    os.path.join(dockerDirToReal(dlclient, tor.save_path),
+                                 tor.name.replace('CultFilms', 'CultFilms™')), origin_path)
+                logger.info('Hardlink to : ' + origin_path)
+                continue
+
+
         # `FraMeSToR.mkv` 和 `FraMeSToR/`
         if (fileext == '.mkv'):
             indir_path = os.path.join(dockerDirToReal(dlclient, tor.save_path),
