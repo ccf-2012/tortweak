@@ -94,7 +94,7 @@ def tweakTask(dlclient):
             continue
 
         filename, fileext = os.path.splitext(tor.name)
-        logger.info('Torrent: ' + tor.name)
+        # logger.info('Torrent: ' + tor.name)
         origin_path = os.path.join(dockerDirToReal(dlclient, tor.save_path),
                                    tor.name)
         if os.path.exists(origin_path):
